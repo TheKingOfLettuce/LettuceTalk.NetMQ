@@ -39,6 +39,7 @@ public class NetMQTalker : TalkingPoint, IDisposable {
 
     protected virtual void HandleMessageReceived(object? sender, NetMQSocketEventArgs args) {
         Message message = MessageFactory.GetMessage(args.Socket.ReceiveFrameBytes());
+        Publish(message);
     }
 
     /// <summary>
