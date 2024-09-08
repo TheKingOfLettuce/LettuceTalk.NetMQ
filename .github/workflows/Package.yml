@@ -1,0 +1,38 @@
+name: Package & Deploy Nuget Package
+
+on:
+  release:
+    types: [published]
+
+permissions:
+  packages: write
+  contents: read
+  actions: read
+
+jobs:
+  create-package-artifact:
+    uses: TheKingOfLettuce/LettuceGithubWorkflows/.github/workflows/Package-dotnet.yml@main
+    with:
+      dotnet-version: 8.0.x
+      configuration: Release
+      upload-artifact: true
+      artifact-name: LettuceTalk.NetMQ_${{ github.ref_name }}
+      bin-dir: LettuceTalk.NetMQ
+  deploy-package-github:
+    uses: TheKingOfLettuce/LettuceGithubWorkflows/.github/workflows/Upload-Nuget-dotnet.yml@main
+    needs: create-package-artifact
+    with:
+      artifact-name: LettuceTalk.NetMQ_${{ github.ref_name }}
+      artifact-id: ${{ needs.create-package-artifact.outputs.artifact-id }}
+      nuget-source: https://nuget.pkg.github.com/TheKingOfLettuce/index.json
+    secrets:
+      nuget-api-key: ${{ secrets.GITHUB_TOKEN }}
+  deploy-package-nuget:
+    uses: TheKingOfLettuce/LettuceGithubWorkflows/.github/workflows/Upload-Nuget-dotnet.yml@main
+    needs: create-package-artifact
+    with:
+      artifact-name: LettuceTalk.NetMQ_${{ github.ref_name }}
+      artifact-id: ${{ needs.create-package-artifact.outputs.artifact-id }}
+      nuget-source: https://nuget.org
+    secrets:
+      nuget-api-key: ${{ secrets.NUGET_PACKAGE_KEY }}
