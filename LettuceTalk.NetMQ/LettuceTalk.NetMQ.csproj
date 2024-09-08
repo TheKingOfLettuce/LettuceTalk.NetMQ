@@ -4,7 +4,7 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <TargetFrameworks>net8.0;net6.0;net7.0</TargetFrameworks>
-    <Title>LettuceTalk Core</Title>
+    <Title>LettuceTalk NetMQ</Title>
     <Authors>Lettuce Studios</Authors>
     <Description>Integrates the LettuceTalk.Core protcol using NetMQ as the communication pipeline </Description>
     <AssemblyVersion>0.0.1</AssemblyVersion>
@@ -14,5 +14,10 @@
   <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
     <DebugType>pdbonly</DebugType>
   </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="LettuceTalk.Core" Version="1.0.0" />
+    <PackageReference Include="NetMQ" Version="4.0.1.13" />
+  </ItemGroup>
 
 </Project>
