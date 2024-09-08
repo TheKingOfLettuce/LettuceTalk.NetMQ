@@ -5,14 +5,14 @@ using LettuceTalk.Core;
 
 namespace LettuceTalk.NetMQ;
 
-public abstract class BaseMessageSender : TalkingPoint, IDisposable {
+public class NetMQTalker : TalkingPoint, IDisposable {
     public readonly string Name;
 
     protected readonly DealerSocket _socket;
     protected readonly NetMQPoller _poller;
     protected readonly NetMQQueue<Message> _messageQueue;
     
-    protected BaseMessageSender(string ip, int port, string name, bool isBind = true) : base() {
+    protected NetMQTalker(string ip, int port, string name, bool isBind = true) : base() {
         Name = name;
         _messageQueue = new NetMQQueue<Message>();
         _socket = new DealerSocket($"{(isBind ? '@' : '>')}tcp://{ip}:{port}");
@@ -24,12 +24,17 @@ public abstract class BaseMessageSender : TalkingPoint, IDisposable {
         _poller.RunAsync();
     }
 
-    ~BaseMessageSender() {
+    ~NetMQTalker() {
         Dispose(false);
     }
 
     public void SendMessage(Message message) {
         _messageQueue.Enqueue(message);
+    }
+
+    public override bool SendMessage(SendMessageArgs args) {
+        SendMessage(args.Message);
+        return true;        
     }
 
     protected virtual void HandleMessageReceived(object? sender, NetMQSocketEventArgs args) {
