@@ -5,17 +5,24 @@ using LettuceTalk.Core;
 
 namespace LettuceTalk.NetMQ;
 
-public class NetMQTalker : TalkingPoint, IDisposable {
-    public readonly string Name;
-
-    protected readonly DealerSocket _socket;
+/// <summary>
+/// A <see cref="TalkingPoint"/> that uses <see cref="NetMQ"/> as the backing communication for the <see cref="LettuceTalk"/> Protocol
+/// This serves as a base class for a specfic NetMQ backing <see cref="NetMQSocket"/>
+/// </summary>
+public abstract class NetMQTalker : TalkingPoint, IDisposable {
+    protected readonly NetMQSocket _socket;
     protected readonly NetMQPoller _poller;
     protected readonly NetMQQueue<Message> _messageQueue;
     
-    protected NetMQTalker(string ip, int port, string name, bool isBind = true) : base() {
-        Name = name;
+    /// <summary>
+    /// Creates an endpoint at the given ip and port
+    /// </summary>
+    /// <param name="ip">the string representation of the IP to create an endpoint with</param>
+    /// <param name="port">the port to create an endpoint with</param>
+    /// <param name="isBind">wether it should bind the endpoint (server) or connect the endpoint (client)</param>
+    protected NetMQTalker(string ip, int port, bool isBind = true) : base() {
         _messageQueue = new NetMQQueue<Message>();
-        _socket = new DealerSocket($"{(isBind ? '@' : '>')}tcp://{ip}:{port}");
+        _socket = GetSocket(ip, port, isBind);
         _poller = new NetMQPoller{_messageQueue};
 
         _poller.Add(_socket);
@@ -28,24 +35,49 @@ public class NetMQTalker : TalkingPoint, IDisposable {
         Dispose(false);
     }
 
+    /// <summary>
+    /// Gets the specfic <see cref="NetMQSocket"/> to use for communication
+    /// </summary>
+    /// <param name="ip">the string representation of the IP to create an endpoint with</param>
+    /// <param name="port">the port to create an endpoint with</param>
+    /// <param name="isBind">wether it should bind the endpoint (server) or connect the endpoint (client)</param>
+    /// <returns>the <see cref="NetMQSocket"/> to use</returns>
+    protected abstract NetMQSocket GetSocket(string ip, int port, bool isBind);
+
+    /// <summary>
+    /// Sends a <see cref="Message"/> by placing it into the <see cref="NetMQQueue{Message}"/> for the <see cref="NetMQSocket"/> to process
+    /// </summary>
+    /// <param name="message">the <see cref="Message"/> to send</param>
     public void SendMessage(Message message) {
         _messageQueue.Enqueue(message);
     }
 
+    /// <summary>
+    /// Sends a <see cref="Message"/> by placing it into the <see cref="NetMQQueue{Message}"/> for the <see cref="NetMQSocket"/> to process
+    /// </summary>
+    /// <param name="args">the message args to send with</param>
+    /// <returns>if it sent the message sucesfully</returns>
     public override bool SendMessage(SendMessageArgs args) {
         SendMessage(args.Message);
         return true;        
     }
 
+    /// <summary>
+    /// Handles receiving a message from the <see cref="NetMQSocket"/>
+    /// </summary>
+    /// <param name="sender">unused</param>
+    /// <param name="args">the message data</param>
     protected virtual void HandleMessageReceived(object? sender, NetMQSocketEventArgs args) {
-        Message message = MessageFactory.GetMessage(args.Socket.ReceiveFrameBytes());
+        NetMQMessage messageData = args.Socket.ReceiveMultipartMessage(3);
+        Message message = MessageFactory.GetMessage(messageData[2].Buffer);
         Publish(message);
     }
 
     /// <summary>
-    /// Send message, blocking until message has been sent
+    /// Handles when a message in the <see cref="NetMQQueue{Message}"/> is ready to send
     /// </summary>
-    /// <param name="message">the message to send</param>
+    /// <param name="sender">unsed</param>
+    /// <param name="args">the message to send</param>
     protected virtual void HandleSendMessage(object? sender, NetMQQueueEventArgs<Message> args) { 
         if (!_messageQueue.TryDequeue(out Message message, TimeSpan.FromSeconds(5))) {
             // log dequeue warning
@@ -53,7 +85,11 @@ public class NetMQTalker : TalkingPoint, IDisposable {
         }
 
         byte[] messageData = MessageFactory.GetMessageData(message);
-        if (_socket.TrySendFrame(TimeSpan.FromSeconds(7), messageData, messageData.Length))
+        NetMQMessage messageToSend = new NetMQMessage();
+        messageToSend.Push(_socket.Options.Identity);
+        messageToSend.PushEmptyFrame();
+        messageToSend.Push(messageData);
+        if (_socket.TrySendMultipartMessage(TimeSpan.FromSeconds(7), messageToSend))
             //message sent
             return;
         else
@@ -61,6 +97,9 @@ public class NetMQTalker : TalkingPoint, IDisposable {
             return;
     }
 
+    /// <summary>
+    /// Dispose of the <see cref="NetMQTalker"/> closing any sockets and freeing resources 
+    /// </summary>
     public virtual void Dispose() {
         Dispose(true);
         GC.SuppressFinalize(this);
