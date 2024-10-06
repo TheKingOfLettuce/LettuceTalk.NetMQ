@@ -7,7 +7,7 @@
     <Title>LettuceTalk NetMQ</Title>
     <Authors>Lettuce Studios</Authors>
     <Description>Integrates the LettuceTalk.Core protcol using NetMQ as the communication pipeline </Description>
-    <Version>1.0.5</Version>
+    <Version>2.0.0-B9</Version>
   </PropertyGroup>
 
   <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
@@ -15,7 +15,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="LettuceTalk.Core" Version="1.0.3" />
+    <PackageReference Include="LettuceTalk.Core" Version="1.1.1" />
     <PackageReference Include="NetMQ" Version="4.0.1.13" />
   </ItemGroup>
 
