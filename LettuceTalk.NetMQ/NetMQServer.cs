@@ -12,6 +12,9 @@ namespace LettuceTalk.NetMQ;
 public class SendClientMessageArgs : SendMessageArgs {
     public readonly string ClientID;
 
+    /// <param name="clientID">the client ID to send to, pass empty string to send to all clients</param>
+    /// <param name="message">the message to send</param>
+    /// <exception cref="ArgumentException"></exception>
     public SendClientMessageArgs(string clientID, Message message) : base(message) {
         if (clientID == null) {
             throw new ArgumentException("Cannot have clientID be null", nameof(clientID));
@@ -21,19 +24,21 @@ public class SendClientMessageArgs : SendMessageArgs {
 }
 
 /// <summary>
-/// A server that uses a <see cref="RouterSocket"/> to handle client connections
+/// A server that uses a <see cref="RouterSocket"/> to handle client connections.<para/>
+/// Can send messages via <see cref="SendClientMessageArgs"/> to indvidual clients or all clients
 /// </summary>
 public class NetMQServer : IDisposable {
     public event Action<string>? OnClientRegistered;
+    public event Action<string>? OnClientDeRegistered;
 
     protected readonly RouterSocket _socket;
     protected readonly NetMQPoller _poller;
     protected readonly NetMQQueue<SendClientMessageArgs> _messageQueue;
 
-    protected readonly Dictionary<string, MessageCallbackHandler> _clients;
+    private readonly Dictionary<string, ClientInstance> _clients;
 
     public NetMQServer(string ip, int port) {
-        _clients = new Dictionary<string, MessageCallbackHandler>();
+        _clients = new Dictionary<string, ClientInstance>();
 
         _messageQueue = new NetMQQueue<SendClientMessageArgs>();
         _socket = new RouterSocket($"tcp://{ip}:{port}");
@@ -66,21 +71,36 @@ public class NetMQServer : IDisposable {
     }
 
     /// <summary>
-    /// Registers a client with the given ID with a default callback instance
+    /// Pre-Registers a client with the given ID with a default callback instance
     /// </summary>
     /// <param name="clientID">the ID to register with</param>
-    public void RegisterClient(string clientID) => RegisterClient(clientID, new MessageCallbackHandler());
+    public void PreRegisterClient(string clientID) => PreRegisterClient(clientID, new MessageCallbackHandler());
 
     /// <summary>
-    /// Registers a client with the given ID and callback instance
+    /// Pre-Registers a client with the given ID and callback instance
     /// </summary>
     /// <param name="clientID">the ID to register with</param>
     /// <param name="callbackHandler">the message callback handler to associate with</param>
-    public void RegisterClient(string clientID, MessageCallbackHandler callbackHandler) {
+    public void PreRegisterClient(string clientID, MessageCallbackHandler callbackHandler) {
         if (_clients.ContainsKey(clientID))
             throw new ArgumentException($"Received duplicate client ID during registration: {clientID}");
-        _clients[clientID] = callbackHandler;
-        OnClientRegistered?.Invoke(clientID);
+        _clients[clientID] = new ClientInstance(callbackHandler);
+    }
+
+    /// <summary>
+    /// Deregisters a client with the given ID
+    /// </summary>
+    /// <param name="clientID">the client ID to remove</param>
+    /// <exception cref="ArgumentException">if the client ID is not registered to the server</exception>
+    public void DeregisterClient(string clientID) {
+        if (!_clients.ContainsKey(clientID))
+            throw new ArgumentException($"Cannot remove client {clientID}, it is not registered");
+
+        OnClientDeRegistered?.Invoke(clientID);
+        ClientInstance client = _clients[clientID];
+        _ = _clients.Remove(clientID);
+        // should clean up client instance here
+        client.IsRegistered = false;
     }
 
     /// <summary>
@@ -92,7 +112,7 @@ public class NetMQServer : IDisposable {
         if (!_clients.ContainsKey(clientID))
             throw new ArgumentException("ClientID is not registered to the server");
 
-        return _clients[clientID];
+        return _clients[clientID].CallbackHandler;
     }
 
     /// <summary>
@@ -126,12 +146,19 @@ public class NetMQServer : IDisposable {
         NetMQMessage messageData = args.Socket.ReceiveMultipartMessage(3);
         string clientID = Encoding.Unicode.GetString(messageData[0].Buffer);
         Message message = MessageFactory.GetMessage(messageData[2].Buffer);
+        // would be better if we could compare message code instead of type
         if (message.GetType() == typeof(RegisterClient)) {
-            RegisterClient(clientID);
+            PreRegisterClient(clientID);
+            _clients[clientID].IsRegistered = true;
+            OnClientRegistered?.Invoke(clientID);
             SendMessage(new SendClientMessageArgs(clientID, new RegisterClientAck()));
         }
+        else if (message.GetType() == typeof(DeRegisterClient)) {
+            SendMessage(new SendClientMessageArgs(clientID, new DeRegisterClientAck()));
+            DeregisterClient(clientID);
+        }
         else if (_clients.ContainsKey(clientID)) {
-            _clients[clientID].Publish(message);
+            _clients[clientID].CallbackHandler.Publish(message);
         }
         else {
             throw new ArgumentException($"Cannot handle message due to client not being registered: {clientID}");
@@ -156,5 +183,14 @@ public class NetMQServer : IDisposable {
         _poller.Stop();
         _poller.Dispose();
         _socket.Dispose();
+    }
+}
+
+internal class ClientInstance {
+    public readonly MessageCallbackHandler CallbackHandler;
+    public bool IsRegistered;
+
+    public ClientInstance(MessageCallbackHandler callbackHandler) {
+        CallbackHandler = callbackHandler;
     }
 }

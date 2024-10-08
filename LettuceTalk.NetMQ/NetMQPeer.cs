@@ -7,8 +7,8 @@ using System.Text;
 namespace LettuceTalk.NetMQ;
 
 /// <summary>
-/// A <see cref="TalkingPoint"/> that uses a <see cref="DealerSocket"/> to act as a client.
-/// This can either do a single bind/connect to another <see cref="NetMQPeer"/> or connecting to a <see cref="NetMQServer"/>
+/// A <see cref="TalkingPoint"/> that uses a <see cref="DealerSocket"/> to act as a client.<para/>
+/// This can either do a single bind/connect to another <see cref="NetMQPeer"/> or connect to a <see cref="NetMQServer"/>
 /// </summary>
 public class NetMQPeer : TalkingPoint, IDisposable {
     public readonly string Name;
@@ -23,6 +23,9 @@ public class NetMQPeer : TalkingPoint, IDisposable {
     /// <param name="port">the port to create an endpoint with</param>
     /// <param name="isBind">wether it should bind the endpoint (server) or connect the endpoint (client)</param>
     public NetMQPeer(string name, string ip, int port, bool isBind = false) : base() {
+        if (string.IsNullOrEmpty(name))
+            throw new ArgumentException("Peer name cannot be null or empty", nameof(name));
+
         _messageQueue = new NetMQQueue<Message>();
         _socket = new DealerSocket($"{(isBind ? '@' : '>')}tcp://{ip}:{port}");
         _poller = new NetMQPoller{_messageQueue};
