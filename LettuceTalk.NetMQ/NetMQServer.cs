@@ -128,6 +128,7 @@ public class NetMQServer : IDisposable {
         Message message = MessageFactory.GetMessage(messageData[2].Buffer);
         if (message.GetType() == typeof(RegisterClient)) {
             RegisterClient(clientID);
+            SendMessage(new SendClientMessageArgs(clientID, new RegisterClientAck()));
         }
         else if (_clients.ContainsKey(clientID)) {
             _clients[clientID].Publish(message);
