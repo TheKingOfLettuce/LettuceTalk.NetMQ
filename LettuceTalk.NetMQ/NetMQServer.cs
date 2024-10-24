@@ -163,7 +163,13 @@ public class NetMQServer : TalkingPoint, IDisposable {
         Message message = MessageFactory.GetMessage(messageData[2].Buffer);
         int messageCode = MessageFactory.GetMessageCode(message);
         if (messageCode == NetMQMessageCodes.REGISTER_CLIENT) {
-            PreRegisterClient(clientID, (message as RegisterClient).PublishMessagesToServer);
+            RegisterClient registerMessage = (RegisterClient)message;
+            if (registerMessage.PreRegisterClient) {
+                PreRegisterClient(clientID, registerMessage.PublishMessagesToServer);
+            }
+            if (!_clients.ContainsKey(clientID)) {
+                return;
+            }
             _clients[clientID].IsRegistered = true;
             OnClientRegistered?.Invoke(clientID);
             SendMessage(new SendClientMessageArgs(clientID, new RegisterClientAck()));

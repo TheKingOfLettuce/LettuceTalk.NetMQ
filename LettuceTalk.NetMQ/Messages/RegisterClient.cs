@@ -7,9 +7,12 @@ namespace LettuceTalk.NetMQ;
 public class RegisterClient : Message {
     [JsonInclude]
     public readonly bool PublishMessagesToServer;
+    [JsonInclude]
+    public readonly bool PreRegisterClient;
 
     [JsonConstructor]
-    public RegisterClient(bool publishMessagesToServer = false) {
+    public RegisterClient(bool publishMessagesToServer = false, bool preRegisterClient = true) {
         PublishMessagesToServer = publishMessagesToServer;
+        PreRegisterClient = preRegisterClient;
     } 
 }
