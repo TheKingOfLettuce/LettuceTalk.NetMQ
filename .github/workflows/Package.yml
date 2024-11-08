@@ -18,6 +18,7 @@ jobs:
       upload-artifact: true
       artifact-name: LettuceTalk.NetMQ_${{ github.ref_name }}
       bin-dir: LettuceTalk.NetMQ
+      project-path: LettuceTalk.NetMQ/LettuceTalk.NetMQ.csproj
   deploy-package-github:
     uses: TheKingOfLettuce/LettuceGithubWorkflows/.github/workflows/Upload-Nuget-dotnet.yml@main
     needs: create-package-artifact
