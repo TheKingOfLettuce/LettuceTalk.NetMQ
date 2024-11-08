@@ -32,7 +32,7 @@ public static class Program {
     public NetMQPeer PeerA;
 
     public static void Main() {
-        MessageFactory.AssociateMessage(10, typeof(EchoMessage)); // associate EchoMessage with 10
+        MessageFactory.AssociateMessage<EchoMessage>(); // let IPC framework know about EchoMessage
         PeerA = new NetMQPeer("PeerA", "127.0.0.1", 1234, true); // create peer connection at localhost:1234, passing true to bind connection
         PeerA.Subscribe<EchoMessage>(HandleEchoMessage);
     }
@@ -51,7 +51,7 @@ public static class Program {
     public NetMQPeer PeerB;
 
     public static void Main() {
-        MessageFactory.AssociateMessage(10, typeof(EchoMessage)); // associate EchoMessage with 10
+        MessageFactory.AssociateMessage<EchoMessage>(); // let IPC framework know about EchoMessage
         PeerB = new NetMQPeer("PeerB", "127.0.0.1", 1234); // create peer connection at localhost:1234
         PeerB.Subscribe<EchoMessage>(HandleEchoMessage);
         Thread.Sleep(TimeSpan.FromSeconds(5)); // give time for PeerA to startup
