@@ -161,9 +161,7 @@ public class NetMQServer : TalkingPoint, IDisposable {
         NetMQMessage messageData = args.Socket.ReceiveMultipartMessage(3);
         string clientID = Encoding.Unicode.GetString(messageData[0].Buffer);
         Message message = MessageFactory.GetMessage(messageData[2].Buffer);
-        int messageCode = MessageFactory.GetMessageCode(message);
-        if (messageCode == NetMQMessageCodes.REGISTER_CLIENT) {
-            RegisterClient registerMessage = (RegisterClient)message;
+        if (message is RegisterClient registerMessage) {
             if (registerMessage.PreRegisterClient) {
                 PreRegisterClient(clientID, registerMessage.PublishMessagesToServer);
             }
@@ -174,7 +172,7 @@ public class NetMQServer : TalkingPoint, IDisposable {
             OnClientRegistered?.Invoke(clientID);
             SendMessage(new SendClientMessageArgs(clientID, new RegisterClientAck()));
         }
-        else if (messageCode == NetMQMessageCodes.DEREGISTER_CLIENT) {
+        else if (message is DeRegisterClient) {
             SendMessage(new SendClientMessageArgs(clientID, new DeRegisterClientAck()));
             DeregisterClient(clientID);
         }

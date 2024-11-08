@@ -2,7 +2,7 @@ using LettuceTalk.Core;
 
 namespace LettuceTalk.NetMQ;
 
-[MessageData(NetMQMessageCodes.REGISTER_CLIENT_ACK)]
+[MessageData]
 public class RegisterClientAck : Message {
 
 }

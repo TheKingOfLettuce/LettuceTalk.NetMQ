@@ -3,7 +3,7 @@ using LettuceTalk.Core;
 
 namespace LettuceTalk.NetMQ;
 
-[MessageData(NetMQMessageCodes.REGISTER_CLIENT)]
+[MessageData]
 public class RegisterClient : Message {
     [JsonInclude]
     public readonly bool PublishMessagesToServer;

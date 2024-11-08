@@ -2,7 +2,7 @@ using LettuceTalk.Core;
 
 namespace LettuceTalk.NetMQ;
 
-[MessageData(NetMQMessageCodes.DEREGISTER_CLIENT)]
+[MessageData]
 public class DeRegisterClient : Message {
 
 }

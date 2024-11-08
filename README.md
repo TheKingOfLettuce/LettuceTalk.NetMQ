@@ -7,9 +7,10 @@ Please see [NetMQ]()
 `LettuceTalk.NetMQ` is available on [nuget](https://www.nuget.org/packages/LettuceTalk.NetMQ)
 
 ### Inter-Process Communication
-The first thing you need to do is create a message by inheriting from `Message`:
+The first thing you need to do is create a message by inheriting from `Message` that also has a `MessageDataAttribute` decorated with it:
 
 ```csharp
+[MessageData]
 public class EchoMessage : Message {
     public readonly string EchoString;
 
@@ -18,8 +19,6 @@ public class EchoMessage : Message {
     }
 }
 ```
-We will need to eventually associate the `EchoMessage` with an integer message code to the `MessageFactory`, but that can be done later during communication initialization.
-
 Communication can be established in one of two ways:
 
 **Peer-To-Peer**
@@ -83,7 +82,7 @@ public static class Program {
     private static List<string> _clients = new List<string>();
 
     public static void Main() {
-        MessageFactory.AssociateMessage(10, typeof(EchoMessage)); // associate EchoMessage to code 10
+        MessageFactory.AssociateMessage<EchoMessage>(); // let IPC framework know about EchoMessage
         Server = new NetMQServer("127.0.0.1", 1234); // bind server to localhost:1234
         Server.OnClientRegistered += HandleClientRegistered; // listen for client registers
         Task.Run(RandomDeliveryLoop); // start our delivery loop
@@ -118,7 +117,7 @@ public static class Program {
     public NetMQPeer PeerB;
 
     public static void Main(string[] args) {
-        MessageFactory.AssociateMessage(10, typeof(EchoMessage)); // associate EchoMessage with 10
+        MessageFactory.AssociateMessage<EchoMessage>(); // let IPC framework know about EchoMessage
         PeerB = new NetMQPeer(args[0], "127.0.0.1", 1234); // create client connection at localhost:1234
         PeerB.Subscribe<EchoMessage>(HandleEchoMessage);
         PeerB.Subscribe<RegisterClientAck>(HandleRegisterAck)
