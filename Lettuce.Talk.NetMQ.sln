@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.0.31903.59
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LettuceTalk.NetMQ", "LettuceTalk.NetMQ\LettuceTalk.NetMQ.csproj", "{80B91107-EF87-44B2-864F-DA519DE4D813}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Lettuce.Talk.NetMQ", "Lettuce.Talk.NetMQ\Lettuce.Talk.NetMQ.csproj", "{80B91107-EF87-44B2-864F-DA519DE4D813}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

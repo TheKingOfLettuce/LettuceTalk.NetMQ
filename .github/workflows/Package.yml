@@ -16,14 +16,14 @@ jobs:
       dotnet-version: 8.0.x
       configuration: Release
       upload-artifact: true
-      artifact-name: LettuceTalk.NetMQ_${{ github.ref_name }}
-      bin-dir: LettuceTalk.NetMQ
-      project-path: LettuceTalk.NetMQ/LettuceTalk.NetMQ.csproj
+      artifact-name: Lettuce.Talk.NetMQ_${{ github.ref_name }}
+      bin-dir: Lettuce.Talk.NetMQ
+      project-path: Lettuce.Talk.NetMQ/Lettuce.Talk.NetMQ.csproj
   deploy-package-github:
     uses: TheKingOfLettuce/LettuceGithubWorkflows/.github/workflows/Upload-Nuget-dotnet.yml@main
     needs: create-package-artifact
     with:
-      artifact-name: LettuceTalk.NetMQ_${{ github.ref_name }}
+      artifact-name: Lettuce.Talk.NetMQ_${{ github.ref_name }}
       artifact-id: ${{ needs.create-package-artifact.outputs.artifact-id }}
       nuget-source: https://nuget.pkg.github.com/TheKingOfLettuce/index.json
     secrets:
@@ -32,7 +32,7 @@ jobs:
     uses: TheKingOfLettuce/LettuceGithubWorkflows/.github/workflows/Upload-Nuget-dotnet.yml@main
     needs: create-package-artifact
     with:
-      artifact-name: LettuceTalk.NetMQ_${{ github.ref_name }}
+      artifact-name: Lettuce.Talk.NetMQ_${{ github.ref_name }}
       artifact-id: ${{ needs.create-package-artifact.outputs.artifact-id }}
       nuget-source: https://nuget.org
     secrets:

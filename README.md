@@ -1,10 +1,10 @@
-# LettuceTalk.NetMQ
+# Lettuce.Talk.NetMQ
 Integrates the LettuceTalk.Core protcol using NetMQ as the communication pipeline
 
 Please see [NetMQ]()
 
 ## Quick Start
-`LettuceTalk.NetMQ` is available on [nuget](https://www.nuget.org/packages/LettuceTalk.NetMQ)
+`Lettuce.Talk.NetMQ` is available on [nuget](https://www.nuget.org/packages/Lettuce.Talk.NetMQ)
 
 ### Inter-Process Communication
 The first thing you need to do is create a message by inheriting from `Message` that also has a `MessageDataAttribute` decorated with it:
@@ -23,7 +23,7 @@ Communication can be established in one of two ways:
 
 **Peer-To-Peer**
 
-Using `LettuceTalk.NetMQ.NetMQPeer`, you can establish two way communication between peers. In this example we will create two peers, one will bind the IP endpoint, while the other will connect to it.
+Using `Lettuce.Talk.NetMQ.NetMQPeer`, you can establish two way communication between peers. In this example we will create two peers, one will bind the IP endpoint, while the other will connect to it.
 
 Peer A will be our binder:
 
@@ -70,7 +70,7 @@ NOTE: While you can connect multiple peers to a single binded peer, message queu
 
 **Server/Client**
 
-Using a single `LettuceTalk.NetMQ.NetMQServer`, you can establish communication to as many `LettuceTalk.NetMQ.NetMQPeer` as desired. Clients must register themselves to the server with a unique ID.
+Using a single `Lettuce.Talk.NetMQ.NetMQServer`, you can establish communication to as many `Lettuce.Talk.NetMQ.NetMQPeer` as desired. Clients must register themselves to the server with a unique ID.
 
 We will setup our server to track any clients who register to  periodically send a message to all clients and select a random client for a special message.
 

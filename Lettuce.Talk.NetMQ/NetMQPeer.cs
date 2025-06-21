@@ -4,7 +4,7 @@ using LettuceTalk.Core.MessageHandlers;
 using LettuceTalk.Core;
 using System.Text;
 
-namespace LettuceTalk.NetMQ;
+namespace Lettuce.Talk.NetMQ;
 
 /// <summary>
 /// A <see cref="TalkingPoint"/> that uses a <see cref="DealerSocket"/> to act as a client.<para/>

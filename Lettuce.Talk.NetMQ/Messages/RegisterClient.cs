@@ -1,7 +1,7 @@
 using System.Text.Json.Serialization;
 using LettuceTalk.Core;
 
-namespace LettuceTalk.NetMQ;
+namespace Lettuce.Talk.NetMQ;
 
 [MessageData]
 public class RegisterClient : Message {

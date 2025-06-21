@@ -2,7 +2,7 @@ using System.Reflection;
 using System.Runtime.CompilerServices;
 using LettuceTalk.Core;
 
-namespace LettuceTalk.NetMQ;
+namespace Lettuce.Talk.NetMQ;
 
 public static class NetMQMessageLoader {
 

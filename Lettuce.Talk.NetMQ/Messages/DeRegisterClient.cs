@@ -1,6 +1,6 @@
 using LettuceTalk.Core;
 
-namespace LettuceTalk.NetMQ;
+namespace Lettuce.Talk.NetMQ;
 
 [MessageData]
 public class DeRegisterClient : Message {

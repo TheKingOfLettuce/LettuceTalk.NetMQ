@@ -4,7 +4,7 @@ using LettuceTalk.Core;
 using LettuceTalk.Core.MessageHandlers;
 using System.Text;
 
-namespace LettuceTalk.NetMQ;
+namespace Lettuce.Talk.NetMQ;
 
 /// <summary>
 /// Send message args that contains an arugment for the ClientID to send to
