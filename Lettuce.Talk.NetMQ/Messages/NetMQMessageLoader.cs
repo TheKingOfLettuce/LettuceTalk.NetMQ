@@ -1,6 +1,6 @@
 using System.Reflection;
 using System.Runtime.CompilerServices;
-using LettuceTalk.Core;
+using Lettuce.Talk.Core;
 
 namespace Lettuce.Talk.NetMQ;
 

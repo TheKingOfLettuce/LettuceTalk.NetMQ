@@ -1,5 +1,5 @@
 using System.Text.Json.Serialization;
-using LettuceTalk.Core;
+using Lettuce.Talk.Core;
 
 namespace Lettuce.Talk.NetMQ;
 

@@ -1,4 +1,4 @@
-using LettuceTalk.Core;
+using Lettuce.Talk.Core;
 
 namespace Lettuce.Talk.NetMQ;
 

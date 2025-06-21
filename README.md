@@ -1,5 +1,5 @@
 # Lettuce.Talk.NetMQ
-Integrates the LettuceTalk.Core protcol using NetMQ as the communication pipeline
+Integrates the Lettuce.Talk.Core protcol using NetMQ as the communication pipeline
 
 Please see [NetMQ]()
 

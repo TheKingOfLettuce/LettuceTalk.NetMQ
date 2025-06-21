@@ -1,7 +1,7 @@
 using NetMQ;
 using NetMQ.Sockets;
-using LettuceTalk.Core.MessageHandlers;
-using LettuceTalk.Core;
+using Lettuce.Talk.Core.MessageHandlers;
+using Lettuce.Talk.Core;
 using System.Text;
 
 namespace Lettuce.Talk.NetMQ;
